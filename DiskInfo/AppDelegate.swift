@@ -13,16 +13,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusBar = NSStatusBar.systemStatusBar()
     var statusBarItem : NSStatusItem = NSStatusItem()
     var menu: NSMenu = NSMenu()
-    
+
+    let timerInterval = 60.0
+    var timer: NSTimer = NSTimer()
+
     override func awakeFromNib() {
         statusBarItem = statusBar.statusItemWithLength(-1)
         statusBarItem.menu = menu
         statusBarItem.image = NSImage(imageLiteral: "icon16_white.png")
         statusBarItem.button?.action = Selector("populateMenu")
-        
         populateMenu()
-    }
     
+        timer = NSTimer.scheduledTimerWithTimeInterval(timerInterval, target: self, selector: Selector("populateMenu"), userInfo: nil, repeats: true)
+    }
+
     func populateMenu() {
         menu.removeAllItems()
         getDiskInfo().forEach({
@@ -39,11 +43,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuItemQuit.keyEquivalent = ""
         menu.addItem(menuItemQuit)
     }
-    
+
     func terminateApp() {
+        timer.invalidate()
         exit(0)
     }
-    
+
     func getDiskInfo() -> [String] {
         let attributes = directoryFileSystemAttributes("/")!
         let filesystemSize = attributes[NSFileSystemSize] as! Int
@@ -58,7 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             "Percentage used: \(Int((Double(totalSize) - Double(freeSize)) / (Double(totalSize) / 100))) %",
         ]
     }
-    
+
     func directoryFileSystemAttributes(path: String) -> [String: AnyObject]? {
         do {
             return try NSFileManager.defaultManager().attributesOfFileSystemForPath(path)
