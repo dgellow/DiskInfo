@@ -2,11 +2,12 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "round50.png",
+      "filename" : "diskinfo_statusbar_icon_16x16@1x.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "diskinfo_statusbar_icon_16x16@2x.png",
       "scale" : "2x"
     },
     {

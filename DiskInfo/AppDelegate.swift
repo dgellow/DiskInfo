@@ -14,16 +14,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusBarItem : NSStatusItem = NSStatusItem()
     var menu: NSMenu = NSMenu()
 
+    let icon = NSImage(named: "icon16.png")
+
     let timerInterval = 60.0
     var timer: NSTimer = NSTimer()
 
     override func awakeFromNib() {
         statusBarItem = statusBar.statusItemWithLength(-1)
         statusBarItem.menu = menu
-        statusBarItem.image = NSImage(imageLiteral: "icon16_white.png")
         statusBarItem.button?.action = Selector("populateMenu")
+        icon?.template = true
+        statusBarItem.button?.image = icon
+
         populateMenu()
-    
+
         timer = NSTimer.scheduledTimerWithTimeInterval(timerInterval, target: self, selector: Selector("populateMenu"), userInfo: nil, repeats: true)
     }
 
@@ -36,7 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             menuItem.keyEquivalent = ""
             menu.addItem(menuItem)
         })
-        
+
         let menuItemQuit = NSMenuItem()
         menuItemQuit.title = "Quit DiskInfo"
         menuItemQuit.action = Selector("terminateApp")
