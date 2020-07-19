@@ -10,28 +10,28 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var statusBar = NSStatusBar.systemStatusBar()
+    var statusBar = NSStatusBar.system
     var statusBarItem : NSStatusItem = NSStatusItem()
     var menu: NSMenu = NSMenu()
 
     let icon = NSImage(named: "icon16.png")
 
     let timerInterval = 60.0
-    var timer: NSTimer = NSTimer()
+    var timer: Timer = Timer()
 
     override func awakeFromNib() {
-        statusBarItem = statusBar.statusItemWithLength(-1)
+        statusBarItem = statusBar.statusItem(withLength: -1)
         statusBarItem.menu = menu
-        statusBarItem.button?.action = Selector("populateMenu")
-        icon?.template = true
+        statusBarItem.button?.action = #selector(populateMenu)
+        icon?.isTemplate = true
         statusBarItem.button?.image = icon
 
         populateMenu()
 
-        timer = NSTimer.scheduledTimerWithTimeInterval(timerInterval, target: self, selector: Selector("populateMenu"), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: timerInterval, target: self, selector: #selector(populateMenu), userInfo: nil, repeats: true)
     }
 
-    func populateMenu() {
+    @objc func populateMenu() {
         menu.removeAllItems()
         getDiskInfo().forEach({
             (info: String) in
@@ -43,23 +43,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menuItemQuit = NSMenuItem()
         menuItemQuit.title = "Quit DiskInfo"
-        menuItemQuit.action = Selector("terminateApp")
+        menuItemQuit.action = #selector(terminateApp)
         menuItemQuit.keyEquivalent = ""
         menu.addItem(menuItemQuit)
     }
 
-    func terminateApp() {
+    @objc func terminateApp() {
         timer.invalidate()
         exit(0)
     }
 
     func getDiskInfo() -> [String] {
-        let attributes = directoryFileSystemAttributes("/")!
-        let filesystemSize = attributes[NSFileSystemSize] as! Int
-        let filesystemFreeSize = attributes[NSFileSystemFreeSize] as! Int
-        let totalSize = BytesToGigaBytes(filesystemSize)
-        let freeSize = BytesToGigaBytes(filesystemFreeSize)
-        
+        let attributes = directoryFileSystemAttributes(path: "/")!
+        let filesystemSize = attributes[FileAttributeKey.systemSize] as! Int
+        let filesystemFreeSize = attributes[FileAttributeKey.systemFreeSize] as! Int
+        let totalSize = BytesToGigaBytes(b: filesystemSize)
+        let freeSize = BytesToGigaBytes(b: filesystemFreeSize)
         return [
             "Total: \(totalSize) GiB",
             "Free: \(freeSize) GiB",
@@ -68,9 +67,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ]
     }
 
-    func directoryFileSystemAttributes(path: String) -> [String: AnyObject]? {
+    func directoryFileSystemAttributes(path: String) -> [FileAttributeKey: Any]? {
         do {
-            return try NSFileManager.defaultManager().attributesOfFileSystemForPath(path)
+            return try FileManager.default.attributesOfFileSystem(forPath: path)
         } catch {
             return nil
         }
